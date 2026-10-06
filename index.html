@@ -524,33 +524,134 @@ const produtosElectricInk = [
 
 function procurar() {
 
-  const campo =
-    document.getElementById("busca");
+    const campo =
+        document.getElementById("busca");
 
-  const texto =
-    campo.value.trim();
+    const texto =
+        campo.value.trim();
 
-  const resultado =
-    document.getElementById("resultado");
+    const resultado =
+        document.getElementById("resultado");
 
+    if (!texto) {
 
-  if (!texto) {
+        resultado.innerHTML = `
+            <div class="result-card">
+                <div class="warning">
+                    Digite alguma coisa para pesquisar.
+                </div>
+            </div>
+        `;
 
-    resultado.innerHTML = `
+        return;
+    }
 
-      <div class="result-card">
+    const busca =
+        interpretarBusca(texto);
 
-        <div class="warning">
-          Digite alguma coisa para pesquisar.
-        </div>
+    const produtoEncontrado =
+        produtosElectricInk.find(produto => {
 
-      </div>
+            const configuracaoOK =
+                !busca.configuracao ||
+                produto.codigo === busca.configuracao;
 
-    `;
+            const diametroOK =
+                !busca.diametro ||
+                produto.diametro === busca.diametro;
 
-    return;
+            const taperOK =
+                !busca.taper ||
+                produto.taper === busca.taper;
 
-  }
+            return (
+                configuracaoOK &&
+                diametroOK &&
+                taperOK
+            );
+        });
+
+    if (produtoEncontrado) {
+
+        resultado.innerHTML = `
+
+            <div class="result-card">
+
+                <h2>
+                    🔎 Produto encontrado
+                </h2>
+
+                <div class="product-card">
+
+                    <h3>
+                        ${produtoEncontrado.nome}
+                    </h3>
+
+                    <p>
+                        <strong>Marca:</strong>
+                        ${produtoEncontrado.marca}
+                    </p>
+
+                    <p>
+                        <strong>Configuração:</strong>
+                        ${produtoEncontrado.codigo}
+                    </p>
+
+                    <p>
+                        <strong>Diâmetro:</strong>
+                        ${produtoEncontrado.diametro}
+                    </p>
+
+                    <p>
+                        <strong>Taper:</strong>
+                        ${produtoEncontrado.taper}
+                    </p>
+
+                    <p>
+                        <strong>Preço:</strong>
+                        R$ ${produtoEncontrado.preco.toFixed(2).replace(".", ",")}
+                    </p>
+
+                    <p>
+                        <strong>Loja:</strong>
+                        ${produtoEncontrado.loja}
+                    </p>
+
+                    <a
+                        href="${produtoEncontrado.url}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        VER PRODUTO
+                    </a>
+
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        resultado.innerHTML = `
+
+            <div class="result-card">
+
+                <h2>
+                    🔎 Nenhum produto encontrado
+                </h2>
+
+                <p>
+                    O LEX interpretou sua busca, mas ainda não encontrou
+                    um produto correspondente na base da Electric Ink.
+                </p>
+
+            </div>
+
+        `;
+    }
+}
+  
 
 
   const busca =
