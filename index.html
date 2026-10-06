@@ -7,23 +7,28 @@
   <title>LEX BUSCADOR</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 30px 20px;
       background: #0b0b0b;
-      color: white;
-      font-family: Arial, sans-serif;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
     }
 
     h1 {
       text-align: center;
       font-size: 32px;
-      margin-bottom: 8px;
+      letter-spacing: 2px;
+      margin: 10px 0 5px;
     }
 
     .subtitle {
@@ -34,26 +39,26 @@
 
     .box {
       background: #151515;
-      padding: 20px;
-      border-radius: 14px;
       border: 1px solid #333;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 15px;
     }
 
     label {
       display: block;
-      margin-bottom: 8px;
       color: #bbb;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
     input,
     select,
     button {
       width: 100%;
-      height: 50px;
-      box-sizing: border-box;
+      min-height: 50px;
       border-radius: 10px;
       font-size: 16px;
-      margin-bottom: 16px;
     }
 
     input,
@@ -61,25 +66,57 @@
       background: #0b0b0b;
       color: white;
       border: 1px solid #444;
-      padding: 10px;
+      padding: 12px;
+      margin-bottom: 18px;
     }
 
     button {
+      border: none;
       background: white;
       color: black;
-      border: none;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    #resultado {
-      margin-top: 20px;
+    button:active {
+      transform: scale(0.98);
     }
 
-    .resultado-box {
+    .result-card {
       background: #151515;
       border: 1px solid #333;
       border-radius: 14px;
       padding: 20px;
+      margin-top: 15px;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #292929;
+      color: #ddd;
+      padding: 7px 10px;
+      border-radius: 20px;
+      margin: 3px;
+      font-size: 13px;
+    }
+
+    .info {
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    .success {
+      color: #fff;
+    }
+
+    .warning {
+      color: #ffcc66;
     }
 
     footer {
@@ -93,95 +130,513 @@
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>LEX BUSCADOR</h1>
+  <h1>LEX BUSCADOR</h1>
 
-    <div class="subtitle">
-      Buscador inteligente de materiais para tatuagem
-    </div>
+  <div class="subtitle">
+    Buscador inteligente de materiais para tatuagem
+  </div>
 
-    <div class="box">
+  <div class="box">
 
-      <label for="busca">
-        O que você está procurando?
-      </label>
+    <label for="busca">
+      O que você está procurando?
+    </label>
 
-      <input
-        id="busca"
-        type="text"
-        placeholder="Ex.: 9RL 0.35 Standard"
-      >
+    <input
+      id="busca"
+      type="text"
+      placeholder="Ex.: 9RL 0.35 Standard"
+      autocomplete="off"
+    >
 
-      <label for="loja">
-        Loja
-      </label>
+    <label for="loja">
+      Loja
+    </label>
 
-      <select id="loja">
-        <option>Electric Ink</option>
-        <option>Todas as lojas</option>
-      </select>
+    <select id="loja">
+      <option value="electricink">Electric Ink</option>
+      <option value="todas">Todas as lojas</option>
+    </select>
 
-      <button onclick="procurar()">
-        🔎 PROCURAR
-      </button>
+    <button onclick="procurar()">
+      🔎 PROCURAR
+    </button>
 
-    </div>
+  </div>
 
-    <div id="resultado">
+  <div id="resultado">
 
-      <div class="resultado-box">
-        Digite o que você procura e toque em PROCURAR.
+    <div class="result-card">
+
+      <div class="info">
+        Digite uma configuração de cartucho para começar.
       </div>
 
     </div>
 
-    <footer>
-      LEX Buscador — projeto em desenvolvimento
-    </footer>
-
   </div>
 
-  <script>
+  <footer>
+    LEX Buscador — projeto em desenvolvimento
+  </footer>
 
-    function procurar() {
+</div>
 
-      const busca = document.getElementById("busca").value;
 
-      const resultado = document.getElementById("resultado");
+<script>
 
-      if (busca.trim() === "") {
+/*
+==========================================================
+LEX BUSCADOR
+MOTOR DE INTERPRETAÇÃO
+==========================================================
+*/
 
-        resultado.innerHTML = `
-          <div class="resultado-box">
-            Digite alguma coisa para pesquisar.
-          </div>
-        `;
 
-        return;
-      }
+/*
+----------------------------------------------------------
+NORMALIZA TEXTO
+----------------------------------------------------------
+*/
 
-      resultado.innerHTML = `
-        <div class="resultado-box">
+function normalizar(texto) {
 
-          <strong>Busca recebida:</strong>
+  return texto
+    .toLowerCase()
+    .replace(/,/g, ".")
+    .replace(/\s+/g, " ")
+    .trim();
 
-          <br><br>
+}
 
-          ${busca}
 
-          <br><br>
+/*
+----------------------------------------------------------
+DETECTAR DIÂMETRO
+----------------------------------------------------------
+*/
 
-          O LEX Buscador recebeu sua pesquisa.
-          <br>
-          O mecanismo de busca será conectado na próxima etapa.
+function detectarDiametro(texto) {
 
+  const t = normalizar(texto);
+
+  if (
+    t.includes("0.20") ||
+    t.includes("0.20mm") ||
+    t.includes("#06")
+  ) {
+    return "0.20 mm";
+  }
+
+  if (
+    t.includes("0.25") ||
+    t.includes("0.25mm") ||
+    t.includes("#08")
+  ) {
+    return "0.25 mm";
+  }
+
+  if (
+    t.includes("0.30") ||
+    t.includes("0.30mm") ||
+    t.includes("#10")
+  ) {
+    return "0.30 mm";
+  }
+
+  if (
+    t.includes("0.35") ||
+    t.includes("0.35mm") ||
+    t.includes("#12")
+  ) {
+    return "0.35 mm";
+  }
+
+  return null;
+
+}
+
+
+/*
+----------------------------------------------------------
+DETECTAR CONFIGURAÇÃO
+----------------------------------------------------------
+*/
+
+function detectarConfiguracao(texto) {
+
+  const t = normalizar(texto);
+
+  let resultado;
+
+
+  /*
+  CÓDIGOS COMPLETOS
+
+  Exemplo:
+
+  1209RL
+  1009RL
+  0809RL
+  0609RL
+  */
+
+  resultado = t.match(/\b(06|08|10|12)0?(\d{1,2})rl\b/);
+
+  if (resultado) {
+
+    const numero = parseInt(resultado[2]);
+
+    return numero.toString().padStart(2, "0") + "RL";
+
+  }
+
+
+  /*
+  9RL
+  09RL
+  */
+
+  resultado = t.match(/\b0?(\d{1,2})\s*rl\b/);
+
+  if (resultado) {
+
+    const numero = parseInt(resultado[1]);
+
+    return numero.toString().padStart(2, "0") + "RL";
+
+  }
+
+
+  /*
+  RL9
+  RL09
+  */
+
+  resultado = t.match(/\brl\s*0?(\d{1,2})\b/);
+
+  if (resultado) {
+
+    const numero = parseInt(resultado[1]);
+
+    return numero.toString().padStart(2, "0") + "RL";
+
+  }
+
+
+  /*
+  9 ROUND LINER
+  */
+
+  resultado = t.match(/\b0?(\d{1,2})\s+round\s+liner\b/);
+
+  if (resultado) {
+
+    const numero = parseInt(resultado[1]);
+
+    return numero.toString().padStart(2, "0") + "RL";
+
+  }
+
+
+  /*
+  ROUND LINER 9
+  */
+
+  resultado = t.match(/\bround\s+liner\s+0?(\d{1,2})\b/);
+
+  if (resultado) {
+
+    const numero = parseInt(resultado[1]);
+
+    return numero.toString().padStart(2, "0") + "RL";
+
+  }
+
+
+  return null;
+
+}
+
+
+/*
+----------------------------------------------------------
+DETECTAR TAPER
+----------------------------------------------------------
+*/
+
+function detectarTaper(texto) {
+
+  const t = normalizar(texto);
+
+
+  if (
+    t.includes("super long") ||
+    t.includes("superlong") ||
+    t.includes("slt")
+  ) {
+
+    return "Super Long Taper";
+
+  }
+
+
+  if (
+    t.includes("extra long") ||
+    t.includes("extralong")
+  ) {
+
+    return "Extra Long Taper";
+
+  }
+
+
+  if (
+    t.includes("long taper")
+  ) {
+
+    return "Long Taper";
+
+  }
+
+
+  if (
+    t.includes("standard taper") ||
+    t.includes("standard") ||
+    t.includes("std")
+  ) {
+
+    return "Standard Taper";
+
+  }
+
+
+  return null;
+
+}
+
+
+/*
+----------------------------------------------------------
+DETECTAR DIÂMETRO ATRAVÉS DO CÓDIGO
+----------------------------------------------------------
+*/
+
+function detectarCodigoDiametro(texto) {
+
+  const t = normalizar(texto);
+
+  const codigo =
+    t.match(/\b(06|08|10|12)0?\d{1,2}rl\b/);
+
+  if (!codigo) {
+    return null;
+  }
+
+  const mapa = {
+
+    "06": "0.20 mm",
+
+    "08": "0.25 mm",
+
+    "10": "0.30 mm",
+
+    "12": "0.35 mm"
+
+  };
+
+  return mapa[codigo[1]] || null;
+
+}
+
+
+/*
+----------------------------------------------------------
+INTERPRETAR BUSCA
+----------------------------------------------------------
+*/
+
+function interpretarBusca(texto) {
+
+  const configuracao =
+    detectarConfiguracao(texto);
+
+  let diametro =
+    detectarDiametro(texto);
+
+  const taper =
+    detectarTaper(texto);
+
+  const diametroCodigo =
+    detectarCodigoDiametro(texto);
+
+
+  /*
+  Se o código trouxer o diâmetro,
+  ele tem prioridade.
+  */
+
+  if (diametroCodigo) {
+
+    diametro = diametroCodigo;
+
+  }
+
+
+  return {
+
+    configuracao: configuracao,
+
+    diametro: diametro,
+
+    taper: taper
+
+  };
+
+}
+
+
+/*
+----------------------------------------------------------
+MOSTRAR RESULTADO
+----------------------------------------------------------
+*/
+
+function procurar() {
+
+  const campo =
+    document.getElementById("busca");
+
+  const texto =
+    campo.value.trim();
+
+  const resultado =
+    document.getElementById("resultado");
+
+
+  if (!texto) {
+
+    resultado.innerHTML = `
+
+      <div class="result-card">
+
+        <div class="warning">
+          Digite alguma coisa para pesquisar.
         </div>
-      `;
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const busca =
+    interpretarBusca(texto);
+
+
+  resultado.innerHTML = `
+
+    <div class="result-card">
+
+      <div class="result-title">
+        🔎 Busca interpretada
+      </div>
+
+      <div class="info">
+
+        <span class="tag">
+          Busca: ${texto}
+        </span>
+
+        ${
+          busca.configuracao
+          ? `
+            <span class="tag">
+              Configuração: ${busca.configuracao}
+            </span>
+          `
+          : `
+            <span class="tag">
+              Configuração: não identificada
+            </span>
+          `
+        }
+
+        ${
+          busca.diametro
+          ? `
+            <span class="tag">
+              Diâmetro: ${busca.diametro}
+            </span>
+          `
+          : `
+            <span class="tag">
+              Diâmetro: não especificado
+            </span>
+          `
+        }
+
+        ${
+          busca.taper
+          ? `
+            <span class="tag">
+              Taper: ${busca.taper}
+            </span>
+          `
+          : `
+            <span class="tag">
+              Taper: não especificado
+            </span>
+          `
+        }
+
+      </div>
+
+      <br>
+
+      <div class="info">
+
+        <strong>Próxima etapa:</strong>
+
+        <br><br>
+
+        O LEX já conseguiu interpretar sua pesquisa.
+        Agora vamos conectar essa interpretação aos
+        produtos reais das lojas.
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/*
+----------------------------------------------------------
+ENTER PARA PESQUISAR
+----------------------------------------------------------
+*/
+
+document
+  .getElementById("busca")
+  .addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+      procurar();
 
     }
 
-  </script>
+  });
+
+</script>
 
 </body>
 </html>
